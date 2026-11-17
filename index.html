@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solar Lincar</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{--gen:#f5d76e;--gen-bg:#fdf3c8;--inj:#86d0a0;--inj-bg:#daf2e2;--buy:#f0908a;--buy-bg:#fbdedc;--sav:#86b7e6;--tot-bg:#e3edf8;--bg:#f6f7f4;--card:#fff;--tx:#1d2420;--mu:#6b7670;--ln:#e3e6e1;--ac:#1f8a4c;--ac2:#f2a900;--bl:#2f6fb0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--gen:#d9b94f;--gen-bg:#3a3520;--inj:#5cb47c;--inj-bg:#223a2b;--buy:#d66f69;--buy-bg:#432a29;--sav:#5c97d0;--tot-bg:#25323f;--bg:#121613;--card:#1b211d;--tx:#e8ede9;--mu:#93a098;--ln:#2a322c;--ac:#43c27a;--ac2:#f5b72b;--bl:#6aa6e6;color-scheme:dark}}
+:root[data-theme="dark"]{--gen:#d9b94f;--gen-bg:#3a3520;--inj:#5cb47c;--inj-bg:#223a2b;--buy:#d66f69;--buy-bg:#432a29;--sav:#5c97d0;--tot-bg:#25323f;--bg:#121613;--card:#1b211d;--tx:#e8ede9;--mu:#93a098;--ln:#2a322c;--ac:#43c27a;--ac2:#f5b72b;--bl:#6aa6e6;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:920px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:20px;margin:0 0 2px}.sub{color:var(--mu);font-size:13px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:16px;margin-bottom:14px}
+.drop{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-size:14px;cursor:pointer;font-weight:600}
+.btn.s{background:transparent;color:var(--tx);border:1px solid var(--ln);font-weight:500;padding:6px 10px;font-size:12px}
+#zone{border:2px dashed var(--ln);border-radius:14px;padding:18px;text-align:center;color:var(--mu);margin-bottom:14px}
+#zone.on{border-color:var(--ac);color:var(--ac)}
+#msg{font-size:13px;margin:8px 0;color:var(--mu)}#msg.err{color:#c0392b}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--ln);background:var(--card);color:var(--tx);border-radius:20px;padding:6px 12px;font-size:13px;cursor:pointer}
+.chip.a{background:var(--ac);color:#fff;border-color:var(--ac)}
+.hero{text-align:center;padding:22px 16px}.hero .k{color:var(--mu);font-size:13px}
+.hero .v{font-size:40px;font-weight:700;color:var(--sav);margin:4px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:14px}
+.kpi .k{color:var(--mu);font-size:12px}.kpi .v{font-size:22px;font-weight:700}.kpi .n{color:var(--mu);font-size:11px}
+h2{font-size:14px;margin:0 0 8px}svg{width:100%;height:auto;display:block}
+table{width:100%;border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}
+th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--ln);white-space:nowrap}th:first-child,td:first-child{text-align:left}th{color:var(--mu);font-weight:500}
+.kpi.gen{background:var(--gen-bg);border-color:var(--gen)}.kpi.inj{background:var(--inj-bg);border-color:var(--inj)}.kpi.buy{background:var(--buy-bg);border-color:var(--buy)}.card.tot{background:var(--tot-bg);border-color:var(--sav)}.split{display:flex;height:18px;border-radius:9px;overflow:hidden;margin:10px 0;background:var(--ln)}.split span{display:block}.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px}.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}.tot .v{font-size:28px;font-weight:700}.cap{color:var(--mu);font-size:12px;margin-top:6px}th.g{color:#b8960f}th.i{color:#3f9a62}th.b{color:#cc5b55}.warn{color:var(--ac2);font-size:12px}.foot{color:var(--mu);font-size:12px}#login{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;align-items:center;justify-content:center;padding:20px}#login .card{width:100%;max-width:340px;margin:0}#login input{width:100%;padding:10px;margin:6px 0;border:1px solid var(--ln);border-radius:10px;background:var(--card);color:var(--tx);font-size:15px}#lerr{color:#c0392b;font-size:13px;min-height:18px}#tip{position:fixed;display:none;z-index:20;background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.6;box-shadow:0 4px 14px rgba(0,0,0,.18);pointer-events:none}#tip i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+#ask{display:none;gap:8px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--ac2);border-radius:10px;padding:10px;margin-bottom:10px;font-size:13px}
+</style></head><body><main>
+<h1>Solar Lincar</h1><div class="sub">Cargá el Excel de DeyeCloud y la factura de ENERSA. La app calcula y guarda el historial.</div>
+<div id="zone"><div class="drop" style="justify-content:center"><label class="btn">Elegir archivos<input id="f" type="file" multiple accept=".xlsx,.xls,.csv,.pdf" hidden></label><span>o arrastrá el Excel y la factura (PDF) acá</span></div></div>
+<div id="ask"><span id="aq"></span><button class="btn s" id="ay">Reemplazar</button><button class="btn s" id="an">Mantener lo anterior</button></div>
+<div id="msg"></div>
+<div class="chips" id="chips"></div>
+<div id="view"></div>
+<div class="card"><h2>Ahorro estimado por mes</h2><div id="ch1"></div></div>
+<div class="card"><h2>Historial</h2><div id="tb"></div></div>
+<div class="card"><h2>Mini informe: ¿los paneles rindieron lo que deberían?</h2><div id="rep"></div></div>
+<div class="card foot"><div id="acc"></div><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn s" id="ex">Exportar copia</button><label class="btn s">Importar copia<input id="im" type="file" accept=".json" hidden></label><button class="btn s" id="cf">Inversión / impuestos</button><button class="btn s" id="lo" style="display:none">Cerrar sesión</button></div>
+<p>Ahorro = energía solar consumida directamente × precio ENERSA de energía “resto” × factor de impuestos + crédito por excedentes. Los cargos de potencia y fijo no cambian con los paneles. El consumo total se estima como kWh facturados + autoconsumo, porque el inversor no registra el consumo nocturno. El export diario de DeyeCloud no trae potencia (kW), solo energía (kWh). Los datos se guardan en este navegador: exportá una copia de vez en cuando.</p></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let S={days:{},inv:{},cfg:{inv0:27000000,tax:1.4325,amp:"2026-11-06",share:0.5,v2:1}};
+try{const r=localStorage.getItem("solarLincar");if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+if(!S.cfg.v2)S.cfg=Object.assign(S.cfg,{inv0:27000000,amp:"2026-11-06",share:0.5,v2:1});
+const save=()=>{try{localStorage.setItem("solarLincar",JSON.stringify(S))}catch(e){}if(window.cloudSave)window.cloudSave(S)};
+const fmt=(n,d=0)=>n==null||isNaN(n)?"—":n.toLocaleString("es-AR",{maximumFractionDigits:d,minimumFractionDigits:d});
+const $$=n=>n==null||isNaN(n)?"—":"$ "+fmt(n);
+const MN=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const lab=m=>MN[+m.slice(5)-1]+" "+m.slice(2,4);
+let sel=null;
+function msg(t,e){$("msg").textContent=t;$("msg").className=e?"err":""}
+function ask(q){return new Promise(res=>{$("aq").textContent=q;$("ask").style.display="flex";$("ay").onclick=()=>{$("ask").style.display="none";res(true)};$("an").onclick=()=>{$("ask").style.display="none";res(false)}})}
+const num=s=>parseFloat(String(s).replace(/\./g,"").replace(",","."));
+async function readXlsx(file){
+  const wb=XLSX.read(await file.arrayBuffer(),{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:""});const out={};
+  for(const r of rows){const i=r.findIndex(c=>/^\d{4}[\/-]\d{2}[\/-]\d{2}$/.test(String(c).trim()));if(i<0)continue;
+    const v=[1,2,3,4].map(k=>parseFloat(r[i+k]));if(v.some(isNaN))continue;out[String(r[i]).trim().replace(/\//g,"-")]=v}
+  const ks=Object.keys(out);if(!ks.length)throw new Error("No encontré filas diarias en el Excel.");
+  const dup=ks.filter(k=>S.days[k]&&S.days[k].some((x,j)=>Math.abs(x-out[k][j])>0.05));
+  let rep=true;if(dup.length)rep=await ask(dup.length+" días ya estaban cargados con valores distintos. ¿Reemplazar?");
+  let nuevos=0;for(const k of ks){if(!S.days[k]){S.days[k]=out[k];nuevos++}else if(rep)S.days[k]=out[k]}
+  return "Excel: "+ks.length+" días leídos ("+nuevos+" nuevos)."}
+function guessTotal(t){const c={};(t.match(/\d{1,3}(?:\.\d{3})+,\d{2}/g)||[]).forEach(x=>c[x]=(c[x]||0)+1);const k=Object.keys(c).filter(x=>c[x]>=2&&num(x)>100000).sort((a,b)=>c[b]-c[a]||num(b)-num(a))[0];return k?num(k):null}
+async function readPdf(file){
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;let t="";
+  for(let p=1;p<=pdf.numPages;p++){const c=await(await pdf.getPage(p)).getTextContent();t+=c.items.map(i=>i.str).join(" ")+" "}
+  const e=k=>t.match(new RegExp("Energia\\s+"+k+"[^:]*:\\s*(\\d+)\\s*x\\s*\\(\\s*(\\d+)\\s*x\\s*(\\d+,\\d+)","i"));
+  const a=e("punta"),b=e("resto"),c=e("valle");const d=t.match(/(\d{2})\/(\d{2})\/(\d{2})\s+(\d{2})\/(\d{2})\/(\d{2})\s+(\d{2})\b/);
+  const g=t.match(/Energ[ií]a\s+Inyectada:\s*(\d[\d.]*)\s*kWh\s*\$\s*(\d[\d.,]*)/i);const tot=t.match(/Total\s+Factura\s*([\d.]+,\d{2})/i);
+  if(!a||!b||!c||!d)throw new Error("No pude leer la factura (energía o período). Revisá que sea una factura ENERSA Tarifa 3.");
+  const m="20"+d[3]+"-"+d[2];
+  const inv={dias:+d[7],kp:+a[1],kr:+b[1],kv:+c[1],pp:num(a[3]),pr:num(b[3]),pv:num(c[3]),kin:g?num(g[1]):0,pc:g?num(g[2]):0,total:tot?num(tot[1]):guessTotal(t)};
+  if(S.inv[m]&&!(await ask("La factura de "+lab(m)+" ya estaba cargada. ¿Reemplazar?")))return "Factura de "+lab(m)+" ya cargada: se mantuvo.";
+  S.inv[m]=inv;return "Factura "+lab(m)+": "+fmt(inv.kp+inv.kr+inv.kv)+" kWh facturados, "+fmt(inv.kin)+" kWh inyectados."}
+async function handle(files){
+  msg("Procesando…");const out=[];
+  for(const f of files){try{out.push(/\.pdf$/i.test(f.name)?await readPdf(f):/\.csv$/i.test(f.name)&&/shortwave_radiation|^time\s*,/im.test(await f.slice(0,3000).text())?await readWeather(f):await readXlsx(f))}catch(e){msg(f.name+": "+e.message,true);return render()}}
+  save();msg(out.join(" "));render()}
+$("f").onchange=e=>handle([...e.target.files]);
+const z=$("zone");z.ondragover=e=>{e.preventDefault();z.className="on"};z.ondragleave=()=>z.className="";z.ondrop=e=>{e.preventDefault();z.className="";handle([...e.dataTransfer.files])};
+function calc(m){
+  const ds=Object.keys(S.days).filter(k=>k.startsWith(m)).sort();const i=S.inv[m];
+  const prod=ds.reduce((s,k)=>s+S.days[k][0],0),feed=ds.reduce((s,k)=>s+S.days[k][1],0),au=prod-feed;
+  const best=ds.reduce((b,k)=>!b||S.days[k][0]>S.days[b][0]?k:b,null);
+  const r={m,ds,prod,feed,au,nd:ds.length,best,i};
+  if(i){const ref=i.pr*S.cfg.tax;r.a1=au*ref;r.cr=i.kin*i.pc;r.ah=r.a1+r.cr;r.full=ds.length>=0.95*i.dias;
+    r.cons=(i.kp+i.kr+i.kv)+au;r.cov=au/r.cons;r.sin=i.total!=null?i.total+r.ah:null;const post=ds.filter(k=>k>S.cfg.amp);const auP=post.reduce((s,k)=>s+S.days[k][0]-S.days[k][1],0),fP=post.reduce((s,k)=>s+S.days[k][1],0);r.ahAmp=(auP*ref+(feed?r.cr*fP/feed:0))*S.cfg.share;r.post=post.length}
+  return r}
+const months=()=>[...new Set([...Object.keys(S.days).map(k=>k.slice(0,7)),...Object.keys(S.inv)])].sort();
+function bars(items,h,fmtv){ // items:[{l,v:[..],c:[..],o}]
+  const W=640,H=h,pad=22,mx=Math.max(1,...items.map(x=>x.v.reduce((a,b)=>a+b,0))),bw=Math.min(40,(W-20)/items.length-4);
+  let s='<svg viewBox="0 0 '+W+' '+(H+pad)+'">';
+  items.forEach((x,k)=>{const cx=10+k*((W-20)/items.length)+((W-20)/items.length-bw)/2;let y=H;
+    x.v.forEach((v,j)=>{const hh=v/mx*(H-16);y-=hh;s+='<rect x="'+cx+'" y="'+y+'" width="'+bw+'" height="'+hh+'" rx="2" fill="'+x.c[j]+'" opacity="'+(x.o||1)+'"/>'});
+    if(fmtv&&items.length<=14)s+='<text x="'+(cx+bw/2)+'" y="'+(y-3)+'" text-anchor="middle" font-size="9" fill="var(--mu)">'+fmtv(x.v.reduce((a,b)=>a+b,0))+'</text>';
+    if(x.t)s+='<rect class="hit" data-d="'+x.t+'" x="'+(cx-2)+'" y="0" width="'+(bw+4)+'" height="'+H+'" fill="transparent"/>';if(x.l)s+='<text x="'+(cx+bw/2)+'" y="'+(H+13)+'" text-anchor="middle" font-size="10" fill="var(--mu)">'+x.l+'</text>'});
+  return s+'</svg>'}
+function render(){
+  const ms=months();if(!sel||!ms.includes(sel))sel=ms[ms.length-1];
+  $("chips").innerHTML=ms.map(m=>'<button class="chip'+(m===sel?" a":"")+'" data-m="'+m+'">'+lab(m)+'</button>').join("");
+  document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{sel=b.dataset.m;render()});
+  if(!ms.length){$("view").innerHTML='<div class="card hero"><div class="k">Todavía no hay datos</div><div style="color:var(--mu)">Subí el Excel de DeyeCloud y la factura ENERSA del mismo mes.</div></div>';$("ch1").innerHTML="";$("tb").innerHTML="";$("acc").textContent="";return}
+  const r=calc(sel),i=r.i;let h="";const buy=i?i.kp+i.kr+i.kv:null;
+  const kpi=(c,k,v,n)=>'<div class="kpi '+c+'"><div class="k">'+k+'</div><div class="v">'+v+'</div><div class="n">'+n+'</div></div>';
+  h+='<div class="card hero"><div class="k">Cuánto ahorraste en '+lab(sel)+' gracias a los paneles</div><div class="v">'+(i?$$(r.ah):"Falta la factura")+'</div>'+(i?'<div class="k">'+$$(r.a1)+' por energía solar usada en la planta + '+$$(r.cr)+' por lo que enviaste a la red'+(r.sin!=null?'<br>Sin paneles habrías pagado ≈ '+$$(r.sin)+' y pagaste '+$$(i.total):'')+'</div>':'')+(i&&!r.full?'<div class="warn">Excel incompleto: '+r.nd+' de '+i.dias+' días. El ahorro es parcial.</div>':'')+(!r.nd?'<div class="warn">Falta el Excel de este mes.</div>':'')+(sel>="2026-11"?'<div class="k">Sistema ampliado (obra 23/10 al 6/11)</div>':sel==="2026-10"?'<div class="k">Sistema original (la obra de ampliación empezó el 23/10)</div>':'<div class="k">Sistema original</div>')+'</div>';
+  h+='<div class="grid">'+kpi("gen","☀️ Generada por tus paneles",fmt(r.prod)+" kWh","Lo que produjeron los paneles en el mes")+kpi("inj","🔌 Enviado a la red",fmt(i?i.kin:r.feed)+" kWh",i?"Equivale a <b>"+$$(r.cr)+"</b>":"Falta la factura para ver los pesos")+kpi("buy","🏭 Comprado a ENERSA",i?fmt(buy)+" kWh":"—",i&&i.total!=null?"Factura del mes: "+$$(i.total):"Falta la factura")+'</div>';
+  if(i){const tot=r.cons,pb=buy/tot*100,pp=r.au/tot*100;
+    h+='<div class="card tot"><div class="k">Consumo total de la empresa</div><div class="v">'+fmt(tot)+' kWh</div><div class="split"><span style="width:'+pb+'%;background:var(--buy)"></span><span style="width:'+pp+'%;background:var(--gen)"></span></div><div class="legend"><span><i style="background:var(--buy)"></i>Comprado a ENERSA: <b>'+fmt(buy)+' kWh ('+fmt(pb,1)+'%)</b></span><span><i style="background:var(--gen)"></i>Generado por tus paneles: <b>'+fmt(r.au)+' kWh ('+fmt(pp,1)+'%)</b></span></div>'+(r.full?'':'<div class="warn">Excel incompleto: la parte de los paneles es aproximada.</div>')+'</div>'}
+  h+='<div class="card"><h2>Día por día (kWh)</h2><div class="legend" style="margin-bottom:6px"><span><i style="background:var(--buy)"></i>Comprado a ENERSA</span><span><i style="background:var(--gen)"></i>Generado por tus paneles y usado en la planta</span><span><i style="background:var(--inj)"></i>Enviado a la red (vendido a ENERSA)</span></div>'+bars(r.ds.map(k=>{const d=S.days[k];return{l:+k.slice(8)%5==0||k.slice(8)=="01"?+k.slice(8):"",v:[d[3],Math.max(0,d[0]-d[1]),d[1]],c:["var(--buy)","var(--gen)","var(--inj)"],t:k}}),160)+'<div class="cap">Rojo + amarillo = lo que consumió la planta ese día. El verde es lo que sobró de los paneles y se envió a la red. El inversor no mide de noche, por eso la compra nocturna no aparece en este gráfico.</div></div>';
+  $("view").innerHTML=h;
+  const all=ms.map(calc);
+  $("ch1").innerHTML=bars(all.map(x=>({l:lab(x.m),v:[x.ah||0],c:["var(--sav)"],o:x.i&&x.full?1:.45})),150,v=>v?"$"+fmt(v/1000)+"k":"");
+  $("tb").innerHTML='<table><tr><th>Mes</th><th class="g">Generado kWh</th><th class="i">A la red kWh</th><th class="i">A la red $</th><th class="b">Comprado kWh</th><th>Consumo total kWh</th><th class="g">% de paneles</th><th>Ahorro</th><th>Estado</th></tr>'+all.slice().reverse().map(x=>'<tr><td>'+lab(x.m)+'</td><td>'+fmt(x.prod)+'</td><td>'+fmt(x.i?x.i.kin:x.feed)+'</td><td>'+(x.i?$$(x.cr):"—")+'</td><td>'+(x.i?fmt(x.i.kp+x.i.kr+x.i.kv):"—")+'</td><td>'+(x.i?fmt(x.cons):"—")+'</td><td>'+(x.i&&x.full?fmt(x.cov*100,1)+"%":"—")+'</td><td>'+$$(x.ah)+'</td><td>'+(!x.i?'<span class="warn">falta factura</span>':!x.nd?'<span class="warn">falta Excel</span>':x.full?"OK":'<span class="warn">parcial</span>')+'</td></tr>').join("")+'</table>';
+  const ok=all.filter(x=>x.i&&x.full&&x.post),tot=ok.reduce((s,x)=>s+x.ahAmp,0),pd=ok.reduce((s,x)=>s+x.post,0),pr=pd?tot/pd*30.4:0;
+  $("acc").innerHTML='<b>Amortización de la ampliación</b> (costo '+$$(S.cfg.inv0)+'). '+(pr?'Ahorro atribuido acumulado: <b>'+$$(tot)+'</b> ('+fmt(tot/S.cfg.inv0*100,1)+'% recuperado). Con un ahorro mensual de '+$$(pr)+', faltarían unos '+fmt((S.cfg.inv0-tot)/pr/12,1)+' años. Estimación sin inflación, cambios de tarifa ni estacionalidad. Se atribuye el '+fmt(S.cfg.share*100)+'% del ahorro del sistema a la ampliación (supuesto, porque duplicó los paneles).':'todavía no hay meses completos con los paneles nuevos. Cargá el Excel y la factura de noviembre cuando estén.')}
+$("ex").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:"application/json"}));a.download="solar-lincar-copia.json";a.click()};
+$("im").onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(!j.days||!j.inv)throw 0;S=Object.assign(S,j);save();msg("Copia importada.");render()}catch(x){msg("Archivo de copia no válido.",true)}};
+$("cf").onclick=()=>{const a=prompt("Costo de la ampliación en pesos:",S.cfg.inv0);if(a===null)return;const n=num(a.replace(/\s/g,""))||parseFloat(a);const b=prompt("Factor de impuestos sobre la energía (1 + tasa municipal 13% + IVA 27% + percepciones 3,25% = 1,4325):",String(S.cfg.tax).replace(".",","));if(n>0)S.cfg.inv0=n;const sh=prompt("Fracción del ahorro atribuida a la ampliación (0,5 = 50%, supuesto porque duplicó los paneles):",String(S.cfg.share).replace(".",","));const q=parseFloat(String(sh).replace(",","."));if(q>0&&q<=1)S.cfg.share=q;const t=parseFloat(String(b).replace(",","."));if(t>1)S.cfg.tax=t;save();render()};
+
+
+async function readWeather(file){
+  const L=(await file.text()).split(/\r?\n/);const hi=L.findIndex(l=>/^time\s*,/i.test(l));if(hi<0)throw new Error("No parece un CSV de clima de Open-Meteo.");
+  const H=L[hi].split(",").map(x=>x.trim().toLowerCase());const ix=k=>H.findIndex(x=>x.includes(k));
+  const ir=ix("shortwave_radiation_sum");if(ir<0)throw new Error("Falta la columna Shortwave Radiation Sum: volvé a descargar el CSV marcándola.");
+  const f=H[ir].includes("wh/m")&&!H[ir].includes("mj")?1000:3.6,ic=ix("cloud_cover_mean"),ip=ix("precipitation_sum"),is=ix("sunshine_duration");let n=0;S.wx=S.wx||{};
+  for(const l of L.slice(hi+1)){const c=l.split(",");const d=(c[0]||"").trim();if(!/^\d{4}-\d{2}-\d{2}$/.test(d))continue;const g=parseFloat(c[ir]);if(isNaN(g))continue;
+    S.wx[d]=[g/f,ic>=0?parseFloat(c[ic]):null,ip>=0?parseFloat(c[ip]):null,is>=0?parseFloat(c[is])/3600:null];n++}
+  if(!n)throw new Error("El CSV no tiene filas de datos.");return "Clima: "+n+" días cargados."}
+function wxMonths(){const wx=S.wx||{};
+  return months().map(m=>{const ds=Object.keys(S.days).filter(k=>k.startsWith(m)&&wx[k]&&wx[k][0]>0.3).sort();if(ds.length<12)return null;
+    const rs=ds.map(k=>S.days[k][0]/wx[k][0]),med=rs.slice().sort((a,b)=>a-b)[Math.floor(rs.length/2)];
+    const sp=ds.reduce((a,k)=>a+S.days[k][0],0),sg=ds.reduce((a,k)=>a+wx[k][0],0);
+    return{m,n:ds.length,ratio:sp/sg,gh:sg/ds.length,cl:ds.some(k=>wx[k][1]!=null&&!isNaN(wx[k][1]))?ds.reduce((a,k)=>a+(wx[k][1]||0),0)/ds.length:null,rain:ds.filter(k=>wx[k][2]>1).length,bad:ds.filter((k,j)=>rs[j]<0.7*med&&wx[k][0]>1.5),amp:m>="2026-11"}}).filter(Boolean)}
+function clearKwh(ds){const [y,m,d]=ds.split("-").map(Number);const doy=Math.round((Date.UTC(y,m-1,d)-Date.UTC(y,0,0))/864e5);const dec=23.45*Math.PI/180*Math.sin(2*Math.PI*(284+doy)/365),la=-32.48*Math.PI/180;let s=0;for(let t=0;t<24;t+=1/12){const h=15*(t-12)*Math.PI/180,cz=Math.sin(la)*Math.sin(dec)+Math.cos(la)*Math.cos(dec)*Math.cos(h);if(cz>0.02)s+=1098*cz*Math.exp(-0.057/cz)/12/1000}return s}
+function report(){
+  const W=wxMonths(),OW=W.filter(x=>!x.amp),A2=W.filter(x=>x.amp);
+  const R=months().map(m=>{const ds=Object.keys(S.days).filter(k=>k.startsWith(m)).sort();if(ds.length<12)return null;
+    const cs=ds.map(clearKwh),rs=ds.map((k,j)=>S.days[k][0]/cs[j]),tm=rs.slice().sort((a,b)=>b-a).slice(0,5).reduce((a,b)=>a+b)/5;
+    return{m,n:ds.length,avg:ds.reduce((s,k)=>s+S.days[k][0],0)/ds.length,tm,low:rs.filter(x=>x<0.35*tm).length,amp:m>="2026-11"}}).filter(Boolean);
+  const O=R.filter(x=>!x.amp),A=R.filter(x=>x.amp);
+  if(O.length<2){$("rep").innerHTML='<div class="cap">Hacen falta al menos 2 meses del sistema original con 12 días o más de datos.</div>';return}
+  const mu=O.reduce((a,x)=>a+x.tm,0)/O.length,sp=(Math.max(...O.map(x=>x.tm))-Math.min(...O.map(x=>x.tm)))/mu*100;
+  let lvl,why,tbl,amp="";const T=["✅ Los paneles rindieron lo que deberían","⚠️ Conviene vigilar el rendimiento","🔴 Conviene pedir una revisión técnica"],C=["inj","gen","buy"];
+  if(OW.length>=2){
+    const mr=OW.reduce((a,x)=>a+x.ratio,0)/OW.length,sp2=(Math.max(...OW.map(x=>x.ratio))-Math.min(...OW.map(x=>x.ratio)))/mr*100,nb=OW.reduce((a,x)=>a+x.bad.length,0),nt=OW.reduce((a,x)=>a+x.n,0);
+    lvl=sp2<=15&&nb/nt<=0.08?0:1;
+    why=lvl?"Hubo días o meses que rindieron menos de lo que el sol permitía.":"Con el sol de cada día ya descontado, generaron casi lo mismo todos los meses.";
+    tbl='<table><tr><th>Mes</th><th>Sol que llegó</th><th class="g">Generado por día (kWh)</th><th>Rendimiento*</th><th>Días flojos</th></tr>'+W.map(x=>'<tr><td>'+lab(x.m)+(x.amp?" (ampliado)":"")+'</td><td>'+fmt(x.gh,1)+' kWh/m²</td><td>'+fmt(x.ratio*x.gh)+'</td><td>'+fmt(x.ratio,1)+'</td><td>'+(x.bad.length?x.bad.map(k=>k.slice(8)+"/"+k.slice(5,7)).join(", "):"ninguno")+'</td></tr>').join("")+'</table><div class="cap">*kWh generados por cada kWh/m² de sol. Si es parecido todos los meses, el sistema rinde parejo. “Días flojos”: rindieron menos de lo que el sol permitía.</div>';
+    if(A2.length)amp=A2.map(x=>lab(x.m)+": "+fmt(x.ratio/mr,2)+" veces el sistema original").join(" · ")}
+  else{
+    lvl=sp<=10?0:sp<=20?1:2;why=lvl==0?"En los días más soleados de cada mes generaron casi lo mismo.":"El rendimiento en días soleados varió entre meses ("+fmt(sp)+"%).";
+    tbl='<table><tr><th>Mes</th><th class="g">Generado por día (kWh)</th><th>Rendimiento en días soleados*</th><th>Días muy bajos</th></tr>'+R.map(x=>'<tr><td>'+lab(x.m)+(x.amp?" (ampliado)":"")+'</td><td>'+fmt(x.avg)+'</td><td>'+fmt(x.tm,1)+'</td><td>'+x.low+' de '+x.n+'</td></tr>').join("")+'</table><div class="cap">*kWh generados por cada kWh/m² de sol teórico, en los 5 mejores días del mes. Cargá el clima real para un resultado más preciso: open-meteo.com → Historical Weather API → Concepción del Uruguay → marcar Shortwave Radiation Sum → Download CSV → arrastrarlo acá.</div>';
+    if(A.length)amp=A.map(x=>lab(x.m)+": "+fmt(x.tm/mu,2)+" veces el sistema original").join(" · ")}
+  $("rep").innerHTML='<div class="kpi '+C[lvl]+'" style="margin-bottom:10px"><div class="v" style="font-size:18px">'+T[lvl]+'</div><div class="n" style="font-size:13px">'+why+'</div></div>'+tbl+(amp?'<p style="margin:10px 0 0"><b>Ampliación:</b> '+amp+' (si se duplicaron los paneles, lo esperable es cerca de 2).</p>':'')+'<div class="cap">'+(OW.length>=2?"Basado en el clima real cargado. ":"")+'Opinión orientativa, no es un diagnóstico técnico.</div>'}
+const _render=render;render=function(){_render();try{report()}catch(e){}};
+const tip=document.createElement("div");tip.id="tip";document.body.appendChild(tip);
+function onTip(e){const t=e.target.closest?e.target.closest(".hit"):null;if(!t){tip.style.display="none";return}
+  const k=t.dataset.d,d=S.days[k];if(!d)return;
+  tip.innerHTML='<b>'+k.slice(8)+'/'+k.slice(5,7)+'</b><br><i style="background:var(--buy)"></i>Comprado a ENERSA: <b>'+fmt(d[3],1)+' kWh</b><br><i style="background:var(--gen)"></i>Generado por paneles y usado: <b>'+fmt(Math.max(0,d[0]-d[1]),1)+' kWh</b><br><i style="background:var(--inj)"></i>Enviado a la red: <b>'+fmt(d[1],1)+' kWh</b>';
+  tip.style.display="block";const w=tip.offsetWidth,hh=tip.offsetHeight;
+  tip.style.left=Math.max(6,Math.min(e.clientX+12,innerWidth-w-6))+"px";tip.style.top=Math.max(6,Math.min(e.clientY-hh-8,innerHeight-hh-6))+"px"}
+document.addEventListener("mousemove",onTip);document.addEventListener("click",onTip);
+window.getState=()=>S;
+window.applyRemote=o=>{S=Object.assign({days:{},inv:{},cfg:S.cfg},o);if(!S.cfg||!S.cfg.v2)S.cfg=Object.assign({inv0:27000000,tax:1.4325,amp:"2026-11-06",share:0.5,v2:1},S.cfg||{});try{localStorage.setItem("solarLincar",JSON.stringify(S))}catch(e){}render()};
+render();
+</script>
+<div id="login"><div class="card"><h1>Solar Lincar</h1><div class="sub">Ingresá para ver y guardar tus datos en la nube.</div><input id="em" type="email" placeholder="Mail" autocomplete="username"><input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password"><div id="lerr"></div><button class="btn" id="lg" style="width:100%">Entrar</button></div></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyDFejZz1vm-x9JdXejO4K1SQht_H8ucqnI",authDomain:"informe-paneles-solares-lincar.firebaseapp.com",projectId:"informe-paneles-solares-lincar",storageBucket:"informe-paneles-solares-lincar.firebasestorage.app",messagingSenderId:"414418610546",appId:"1:414418610546:web:41d2419775e2bd1f0b15eb"});
+const auth=getAuth(app),db=getFirestore(app),ref=doc(db,"solarLincar","main"),$=id=>document.getElementById(id);
+let unsub=null,timer=null;
+$("lg").onclick=async()=>{$("lerr").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){$("lerr").textContent=e.code==="auth/operation-not-allowed"?"Falta habilitar Correo/contraseña en Firebase.":"Mail o contraseña incorrectos."}};
+$("pw").addEventListener("keydown",e=>{if(e.key==="Enter")$("lg").click()});
+$("lo").onclick=()=>signOut(auth);
+onAuthStateChanged(auth,async u=>{
+  if(!u){$("login").style.display="flex";$("lo").style.display="none";window.cloudSave=null;if(unsub){unsub();unsub=null}return}
+  $("login").style.display="none";$("lo").style.display="";
+  try{
+    const snap=await getDoc(ref);
+    if(snap.exists())window.applyRemote(JSON.parse(snap.data().json));
+    else{const l=window.getState();if(Object.keys(l.days).length||Object.keys(l.inv).length)await setDoc(ref,{json:JSON.stringify(l),t:Date.now()})}
+    window.cloudSave=st=>{clearTimeout(timer);timer=setTimeout(async()=>{try{await setDoc(ref,{json:JSON.stringify(st),t:Date.now()})}catch(e){msg("No se pudo guardar en la nube ("+e.code+"). Revisá la conexión.",true)}},400)};
+    unsub=onSnapshot(ref,sn=>{if(sn.metadata.hasPendingWrites||!sn.exists())return;window.applyRemote(JSON.parse(sn.data().json))});
+  }catch(e){msg("No se pudo conectar con la base de datos ("+e.code+"). Revisá las reglas de Firestore.",true)}
+});
+</script>
+</body></html>
