@@ -177,24 +177,69 @@ render();
 <div id="login"><div class="card"><h1>Solar Lincar</h1><div class="sub">Ingresá para ver y guardar tus datos en la nube.</div><input id="em" type="email" placeholder="Mail" autocomplete="username"><input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password"><div id="lerr"></div><button class="btn" id="lg" style="width:100%">Entrar</button></div></div>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {getAuth,onAuthStateChanged,signInAnonymously} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-const app=initializeApp({apiKey:"AIzaSyDFejZz1vm-x9JdXejO4K1SQht_H8ucqnI",authDomain:"informe-paneles-solares-lincar.firebaseapp.com",projectId:"informe-paneles-solares-lincar",storageBucket:"informe-paneles-solares-lincar.firebasestorage.app",messagingSenderId:"414418610546",appId:"1:414418610546:web:41d2419775e2bd1f0b15eb"});
-const auth=getAuth(app),db=getFirestore(app),ref=doc(db,"solarLincar","main"),$=id=>document.getElementById(id);
+
+const app=initializeApp({
+  apiKey:"AIzaSyDFejZz1vm-x9JdXejO4K1SQht_H8ucqnI",
+  authDomain:"informe-paneles-solares-lincar.firebaseapp.com",
+  projectId:"informe-paneles-solares-lincar",
+  storageBucket:"informe-paneles-solares-lincar.firebasestorage.app",
+  messagingSenderId:"414418610546",
+  appId:"1:414418610546:web:41d2419775e2bd1f0b15eb"
+});
+
+const auth=getAuth(app),db=getFirestore(app),ref=doc(db,"solarLincar","main");
 let unsub=null,timer=null;
-$("lg").onclick=async()=>{$("lerr").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){$("lerr").textContent=e.code==="auth/operation-not-allowed"?"Falta habilitar Correo/contraseña en Firebase.":"Mail o contraseña incorrectos."}};
-$("pw").addEventListener("keydown",e=>{if(e.key==="Enter")$("lg").click()});
-$("lo").onclick=()=>signOut(auth);
+
 onAuthStateChanged(auth,async u=>{
-  if(!u){$("login").style.display="flex";$("lo").style.display="none";window.cloudSave=null;if(unsub){unsub();unsub=null}return}
-  $("login").style.display="none";$("lo").style.display="";
+  if(!u){
+    $("login").style.display="none";
+    $("lo").style.display="none";
+    window.cloudSave=null;
+    if(unsub){unsub();unsub=null}
+    try{
+      await signInAnonymously(auth);
+    }catch(e){
+      msg("No se pudo iniciar la aplicación ("+e.code+"). Revisá la configuración de Firebase.",true);
+    }
+    return;
+  }
+
+  $("login").style.display="none";
+  $("lo").style.display="none";
+
   try{
     const snap=await getDoc(ref);
-    if(snap.exists())window.applyRemote(JSON.parse(snap.data().json));
-    else{const l=window.getState();if(Object.keys(l.days).length||Object.keys(l.inv).length)await setDoc(ref,{json:JSON.stringify(l),t:Date.now()})}
-    window.cloudSave=st=>{clearTimeout(timer);timer=setTimeout(async()=>{try{await setDoc(ref,{json:JSON.stringify(st),t:Date.now()})}catch(e){msg("No se pudo guardar en la nube ("+e.code+"). Revisá la conexión.",true)}},400)};
-    unsub=onSnapshot(ref,sn=>{if(sn.metadata.hasPendingWrites||!sn.exists())return;window.applyRemote(JSON.parse(sn.data().json))});
-  }catch(e){msg("No se pudo conectar con la base de datos ("+e.code+"). Revisá las reglas de Firestore.",true)}
+
+    if(snap.exists()){
+      window.applyRemote(JSON.parse(snap.data().json));
+    }else{
+      const l=window.getState();
+      if(Object.keys(l.days).length||Object.keys(l.inv).length)
+        await setDoc(ref,{json:JSON.stringify(l),t:Date.now()});
+    }
+
+    window.cloudSave=st=>{
+      clearTimeout(timer);
+      timer=setTimeout(async()=>{
+        try{
+          await setDoc(ref,{json:JSON.stringify(st),t:Date.now()});
+        }catch(e){
+          msg("No se pudo guardar en la nube ("+e.code+"). Revisá la conexión.",true);
+        }
+      },400);
+    };
+
+    unsub=onSnapshot(ref,sn=>{
+      if(sn.metadata.hasPendingWrites||!sn.exists())return;
+      window.applyRemote(JSON.parse(sn.data().json));
+    });
+
+  }catch(e){
+    msg("No se pudo conectar con la base de datos ("+e.code+"). Revisá las reglas de Firestore.",true);
+  }
 });
 </script>
 </body></html>
+
