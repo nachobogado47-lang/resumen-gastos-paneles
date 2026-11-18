@@ -23,7 +23,7 @@ h1{font-size:20px;margin:0 0 2px}.sub{color:var(--mu);font-size:13px;margin-bott
 .chip{border:1px solid var(--ln);background:var(--card);color:var(--tx);border-radius:20px;padding:6px 12px;font-size:13px;cursor:pointer}
 .chip.a{background:var(--ac);color:#fff;border-color:var(--ac)}
 .hero{text-align:center;padding:22px 16px}.hero .k{color:var(--mu);font-size:13px}
-.hero .v{font-size:40px;font-weight:700;color:var(--sav);margin:4px 0}
+.hero .v{font-size:58px;font-weight:700;color:var(--sav);margin:4px 0}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
 .kpi{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:14px}
 .kpi .k{color:var(--mu);font-size:12px}.kpi .v{font-size:22px;font-weight:700}.kpi .n{color:var(--mu);font-size:11px}
@@ -43,7 +43,7 @@ th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--ln);white-s
 <div class="card"><h2>Historial</h2><div id="tb"></div></div>
 <div class="card"><h2>Mini informe: ¿los paneles rindieron lo que deberían?</h2><div id="rep"></div></div>
 <div class="card foot"><div id="acc"></div><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn s" id="ex">Exportar copia</button><label class="btn s">Importar copia<input id="im" type="file" accept=".json" hidden></label><button class="btn s" id="cf">Inversión / impuestos</button><button class="btn s" id="lo" style="display:none">Cerrar sesión</button></div>
-<p>Ahorro = energía solar consumida directamente × precio ENERSA de energía “resto” × factor de impuestos + crédito por excedentes. Los cargos de potencia y fijo no cambian con los paneles. El consumo total se estima como kWh facturados + autoconsumo, porque el inversor no registra el consumo nocturno. El export diario de DeyeCloud no trae potencia (kW), solo energía (kWh). Los datos se guardan en este navegador: exportá una copia de vez en cuando.</p></div>
+</div>
 </main>
 <script>
 const $=id=>document.getElementById(id);
@@ -112,7 +112,7 @@ function render(){
   if(!ms.length){$("view").innerHTML='<div class="card hero"><div class="k">Todavía no hay datos</div><div style="color:var(--mu)">Subí el Excel de DeyeCloud y la factura ENERSA del mismo mes.</div></div>';$("ch1").innerHTML="";$("tb").innerHTML="";$("acc").textContent="";return}
   const r=calc(sel),i=r.i;let h="";const buy=i?i.kp+i.kr+i.kv:null;
   const kpi=(c,k,v,n)=>'<div class="kpi '+c+'"><div class="k">'+k+'</div><div class="v">'+v+'</div><div class="n">'+n+'</div></div>';
-  h+='<div class="card hero"><div class="k">Cuánto ahorraste en '+lab(sel)+' gracias a los paneles</div><div class="v">'+(i?$$(r.ah):"Falta la factura")+'</div>'+(i?'<div class="k">'+$$(r.a1)+' por energía solar usada en la planta + '+$$(r.cr)+' por lo que enviaste a la red'+(r.sin!=null?'<br>Sin paneles habrías pagado ≈ '+$$(r.sin)+' y pagaste '+$$(i.total):'')+'</div>':'')+(i&&!r.full?'<div class="warn">Excel incompleto: '+r.nd+' de '+i.dias+' días. El ahorro es parcial.</div>':'')+(!r.nd?'<div class="warn">Falta el Excel de este mes.</div>':'')+(sel>="2026-11"?'<div class="k">Sistema ampliado (obra 23/10 al 6/11)</div>':sel==="2026-10"?'<div class="k">Sistema original (la obra de ampliación empezó el 23/10)</div>':'<div class="k">Sistema original</div>')+'</div>';
+  h+='<div class="card hero"><div class="k">Cuánto ahorraste en '+lab(sel)+' gracias a los paneles</div><div class="v">'+(i?$$(r.ah):"Falta la factura")+'</div>'+(i&&r.sin!=null?'<div class="k" style="font-size:16px;line-height:1.7">Sin paneles habrías pagado ≈ <b>'+$$(r.sin)+'</b><br>Pagaste <b>'+$$(i.total)+'</b></div>':'')+(i&&!r.full?'<div class="warn">Excel incompleto: '+r.nd+' de '+i.dias+' días. El ahorro es parcial.</div>':'')+(!r.nd?'<div class="warn">Falta el Excel de este mes.</div>':'')+'</div>';
   h+='<div class="grid">'+kpi("gen","☀️ Generada por tus paneles",fmt(r.prod)+" kWh","Lo que produjeron los paneles en el mes")+kpi("inj","🔌 Enviado a la red",fmt(i?i.kin:r.feed)+" kWh",i?"Equivale a <b>"+$$(r.cr)+"</b>":"Falta la factura para ver los pesos")+kpi("buy","🏭 Comprado a ENERSA",i?fmt(buy)+" kWh":"—",i&&i.total!=null?"Factura del mes: "+$$(i.total):"Falta la factura")+'</div>';
   if(i){const tot=r.cons,pb=buy/tot*100,pp=r.au/tot*100;
     h+='<div class="card tot"><div class="k">Consumo total de la empresa</div><div class="v">'+fmt(tot)+' kWh</div><div class="split"><span style="width:'+pb+'%;background:var(--buy)"></span><span style="width:'+pp+'%;background:var(--gen)"></span></div><div class="legend"><span><i style="background:var(--buy)"></i>Comprado a ENERSA: <b>'+fmt(buy)+' kWh ('+fmt(pb,1)+'%)</b></span><span><i style="background:var(--gen)"></i>Generado por tus paneles: <b>'+fmt(r.au)+' kWh ('+fmt(pp,1)+'%)</b></span></div>'+(r.full?'':'<div class="warn">Excel incompleto: la parte de los paneles es aproximada.</div>')+'</div>'}
@@ -177,69 +177,24 @@ render();
 <div id="login"><div class="card"><h1>Solar Lincar</h1><div class="sub">Ingresá para ver y guardar tus datos en la nube.</div><input id="em" type="email" placeholder="Mail" autocomplete="username"><input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password"><div id="lerr"></div><button class="btn" id="lg" style="width:100%">Entrar</button></div></div>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInAnonymously} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-
-const app=initializeApp({
-  apiKey:"AIzaSyDFejZz1vm-x9JdXejO4K1SQht_H8ucqnI",
-  authDomain:"informe-paneles-solares-lincar.firebaseapp.com",
-  projectId:"informe-paneles-solares-lincar",
-  storageBucket:"informe-paneles-solares-lincar.firebasestorage.app",
-  messagingSenderId:"414418610546",
-  appId:"1:414418610546:web:41d2419775e2bd1f0b15eb"
-});
-
-const auth=getAuth(app),db=getFirestore(app),ref=doc(db,"solarLincar","main");
+const app=initializeApp({apiKey:"AIzaSyDFejZz1vm-x9JdXejO4K1SQht_H8ucqnI",authDomain:"informe-paneles-solares-lincar.firebaseapp.com",projectId:"informe-paneles-solares-lincar",storageBucket:"informe-paneles-solares-lincar.firebasestorage.app",messagingSenderId:"414418610546",appId:"1:414418610546:web:41d2419775e2bd1f0b15eb"});
+const auth=getAuth(app),db=getFirestore(app),ref=doc(db,"solarLincar","main"),$=id=>document.getElementById(id);
 let unsub=null,timer=null;
-
+$("lg").onclick=async()=>{$("lerr").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){$("lerr").textContent=e.code==="auth/operation-not-allowed"?"Falta habilitar Correo/contraseña en Firebase.":"Mail o contraseña incorrectos."}};
+$("pw").addEventListener("keydown",e=>{if(e.key==="Enter")$("lg").click()});
+$("lo").onclick=()=>signOut(auth);
 onAuthStateChanged(auth,async u=>{
-  if(!u){
-    $("login").style.display="none";
-    $("lo").style.display="none";
-    window.cloudSave=null;
-    if(unsub){unsub();unsub=null}
-    try{
-      await signInAnonymously(auth);
-    }catch(e){
-      msg("No se pudo iniciar la aplicación ("+e.code+"). Revisá la configuración de Firebase.",true);
-    }
-    return;
-  }
-
-  $("login").style.display="none";
-  $("lo").style.display="none";
-
+  if(!u){$("login").style.display="flex";$("lo").style.display="none";window.cloudSave=null;if(unsub){unsub();unsub=null}return}
+  $("login").style.display="none";$("lo").style.display="";
   try{
     const snap=await getDoc(ref);
-
-    if(snap.exists()){
-      window.applyRemote(JSON.parse(snap.data().json));
-    }else{
-      const l=window.getState();
-      if(Object.keys(l.days).length||Object.keys(l.inv).length)
-        await setDoc(ref,{json:JSON.stringify(l),t:Date.now()});
-    }
-
-    window.cloudSave=st=>{
-      clearTimeout(timer);
-      timer=setTimeout(async()=>{
-        try{
-          await setDoc(ref,{json:JSON.stringify(st),t:Date.now()});
-        }catch(e){
-          msg("No se pudo guardar en la nube ("+e.code+"). Revisá la conexión.",true);
-        }
-      },400);
-    };
-
-    unsub=onSnapshot(ref,sn=>{
-      if(sn.metadata.hasPendingWrites||!sn.exists())return;
-      window.applyRemote(JSON.parse(sn.data().json));
-    });
-
-  }catch(e){
-    msg("No se pudo conectar con la base de datos ("+e.code+"). Revisá las reglas de Firestore.",true);
-  }
+    if(snap.exists())window.applyRemote(JSON.parse(snap.data().json));
+    else{const l=window.getState();if(Object.keys(l.days).length||Object.keys(l.inv).length)await setDoc(ref,{json:JSON.stringify(l),t:Date.now()})}
+    window.cloudSave=st=>{clearTimeout(timer);timer=setTimeout(async()=>{try{await setDoc(ref,{json:JSON.stringify(st),t:Date.now()})}catch(e){msg("No se pudo guardar en la nube ("+e.code+"). Revisá la conexión.",true)}},400)};
+    unsub=onSnapshot(ref,sn=>{if(sn.metadata.hasPendingWrites||!sn.exists())return;window.applyRemote(JSON.parse(sn.data().json))});
+  }catch(e){msg("No se pudo conectar con la base de datos ("+e.code+"). Revisá las reglas de Firestore.",true)}
 });
 </script>
 </body></html>
-
