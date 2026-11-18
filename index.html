@@ -42,7 +42,7 @@ th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--ln);white-s
 <div class="card"><h2>Ahorro estimado por mes</h2><div id="ch1"></div></div>
 <div class="card"><h2>Historial</h2><div id="tb"></div></div>
 <div class="card"><h2>Mini informe: ¿los paneles rindieron lo que deberían?</h2><div id="rep"></div></div>
-<div class="card foot"><div id="acc"></div><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn s" id="ex">Exportar copia</button><label class="btn s">Importar copia<input id="im" type="file" accept=".json" hidden></label><button class="btn s" id="cf">Inversión / impuestos</button><button class="btn s" id="lo" style="display:none">Cerrar sesión</button></div>
+<div class="card foot"><div id="acc"></div><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn s" id="ex">Exportar copia</button><label class="btn s">Importar copia<input id="im" type="file" accept=".json" hidden></label><button class="btn s" id="cf">Inversión / impuestos</button></div>
 </div>
 </main>
 <script>
@@ -174,35 +174,17 @@ window.getState=()=>S;
 window.applyRemote=o=>{S=Object.assign({days:{},inv:{},cfg:S.cfg},o);if(!S.cfg||!S.cfg.v2)S.cfg=Object.assign({inv0:27000000,tax:1.4325,amp:"2026-11-06",share:0.5,v2:1},S.cfg||{});try{localStorage.setItem("solarLincar",JSON.stringify(S))}catch(e){}render()};
 render();
 </script>
-<div id="login"><div class="card"><h1>Solar Lincar</h1><div class="sub">Ingresá para ver y guardar tus datos en la nube.</div><input id="em" type="email" placeholder="Mail" autocomplete="username"><input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password"><div id="lerr"></div><button class="btn" id="lg" style="width:100%">Entrar</button></div></div>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-  setPersistence,
-  browserLocalPersistence
-} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyDFejZz1vm-x9JdXejO4K1SQht_H8ucqnI",authDomain:"informe-paneles-solares-lincar.firebaseapp.com",projectId:"informe-paneles-solares-lincar",storageBucket:"informe-paneles-solares-lincar.firebasestorage.app",messagingSenderId:"414418610546",appId:"1:414418610546:web:41d2419775e2bd1f0b15eb"});
-const auth=getAuth(app),db=getFirestore(app),ref=doc(db,"solarLincar","main"),$=id=>document.getElementById(id);
-await setPersistence(auth, browserLocalPersistence);
-let unsub=null,timer=null;
-$("lg").onclick=async()=>{$("lerr").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){$("lerr").textContent=e.code==="auth/operation-not-allowed"?"Falta habilitar Correo/contraseña en Firebase.":"Mail o contraseña incorrectos."}};
-$("pw").addEventListener("keydown",e=>{if(e.key==="Enter")$("lg").click()});
-$("lo").onclick=()=>signOut(auth);
-onAuthStateChanged(auth,async u=>{
-  if(!u){$("login").style.display="flex";$("lo").style.display="none";window.cloudSave=null;if(unsub){unsub();unsub=null}return}
-  $("login").style.display="none";$("lo").style.display="";
-  try{
-    const snap=await getDoc(ref);
-    if(snap.exists())window.applyRemote(JSON.parse(snap.data().json));
-    else{const l=window.getState();if(Object.keys(l.days).length||Object.keys(l.inv).length)await setDoc(ref,{json:JSON.stringify(l),t:Date.now()})}
-    window.cloudSave=st=>{clearTimeout(timer);timer=setTimeout(async()=>{try{await setDoc(ref,{json:JSON.stringify(st),t:Date.now()})}catch(e){msg("No se pudo guardar en la nube ("+e.code+"). Revisá la conexión.",true)}},400)};
-    unsub=onSnapshot(ref,sn=>{if(sn.metadata.hasPendingWrites||!sn.exists())return;window.applyRemote(JSON.parse(sn.data().json))});
-  }catch(e){msg("No se pudo conectar con la base de datos ("+e.code+"). Revisá las reglas de Firestore.",true)}
-});
+const db=getFirestore(app),ref=doc(db,"solarLincar","main");let timer=null;
+(async()=>{try{
+  const snap=await getDoc(ref);
+  if(snap.exists())window.applyRemote(JSON.parse(snap.data().json));
+  else{const l=window.getState();if(Object.keys(l.days).length||Object.keys(l.inv).length)await setDoc(ref,{json:JSON.stringify(l),t:Date.now()})}
+  window.cloudSave=st=>{clearTimeout(timer);timer=setTimeout(async()=>{try{await setDoc(ref,{json:JSON.stringify(st),t:Date.now()})}catch(e){msg("No se pudo guardar en la nube ("+e.code+"). Revisá la conexión.",true)}},400)};
+  onSnapshot(ref,sn=>{if(sn.metadata.hasPendingWrites||!sn.exists())return;window.applyRemote(JSON.parse(sn.data().json))});
+}catch(e){msg("No se pudo conectar con la base de datos ("+e.code+"). Revisá las reglas de Firestore.",true)}})();
 </script>
 </body></html>
